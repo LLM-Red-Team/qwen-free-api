@@ -21,4 +21,6 @@ ZhipuAI (智谱清言) 接口转API [glm-free-api](https://github.com/LLM-Red-Te
 
 Authorization: Bearer [login_tongyi_ticket]
 
+![获取login_tongyi_ticket](./doc/example-0.png)
+
 文档将在后续完善。
