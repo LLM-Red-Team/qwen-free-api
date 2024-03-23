@@ -323,7 +323,6 @@ async function receiveStream(stream: any): Promise<any> {
         const result = _.attempt(() => JSON.parse(event.data));
         if (_.isError(result))
           throw new Error(`Stream response invalid: ${event.data}`);
-        console.log(result)
         if (!data.id && result.sessionId) data.id = result.sessionId;
         if (result.msgStatus != "finished") {
           const text = (result.contents || []).reduce((str, part) => {
