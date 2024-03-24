@@ -1,3 +1,4 @@
+import { URL } from "url";
 import { PassThrough } from "stream";
 import path from "path";
 import _ from "lodash";
@@ -56,7 +57,7 @@ async function removeConversation(convId: string, ticket: string) {
     {
       headers: {
         Cookie: generateCookie(ticket),
-        ...FAKE_HEADERS
+        ...FAKE_HEADERS,
       },
       timeout: 15000,
       validateStatus: () => true,
@@ -122,9 +123,7 @@ async function createCompletion(
     );
 
     // 异步移除会话，如果消息不合规，此操作可能会抛出数据库错误异常，请忽略
-    removeConversation(answer.id, ticket).catch((err) =>
-      console.error(err)
-    );
+    removeConversation(answer.id, ticket).catch((err) => console.error(err));
 
     return answer;
   })().catch((err) => {
@@ -197,9 +196,7 @@ async function createCompletionStream(
         `Stream has completed transfer ${util.timestamp() - streamStartTime}ms`
       );
       // 流传输结束后异步移除会话，如果消息不合规，此操作可能会抛出数据库错误异常，请忽略
-      removeConversation(convId, ticket).catch((err) =>
-        console.error(err)
-      );
+      removeConversation(convId, ticket).catch((err) => console.error(err));
     });
   })().catch((err) => {
     if (retryCount < MAX_RETRY_COUNT) {
@@ -207,12 +204,7 @@ async function createCompletionStream(
       logger.warn(`Try again after ${RETRY_DELAY / 1000}s...`);
       return (async () => {
         await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
-        return createCompletionStream(
-          model,
-          messages,
-          ticket,
-          retryCount + 1
-        );
+        return createCompletionStream(model, messages, ticket, retryCount + 1);
       })();
     }
     throw err;
@@ -268,13 +260,17 @@ function messagesPrepare(messages: any[]) {
         return _content + (v["text"] || "");
       }, content);
     }
-    return (content += `<|im_start|>${message.role || "user"}\n${message.content}<|im_end|>\n`);
+    return (content += `<|im_start|>${message.role || "user"}\n${
+      message.content
+    }<|im_end|>\n`);
   }, "");
-  return [{
-    role: "user",
-    contentType: "text",
-    content
-  }];
+  return [
+    {
+      role: "user",
+      contentType: "text",
+      content,
+    },
+  ];
 }
 
 /**
@@ -324,21 +320,34 @@ async function receiveStream(stream: any): Promise<any> {
         if (_.isError(result))
           throw new Error(`Stream response invalid: ${event.data}`);
         if (!data.id && result.sessionId) data.id = result.sessionId;
-        if (result.msgStatus != "finished") {
-          const text = (result.contents || []).reduce((str, part) => {
-            const { role, content } = part;
-            if (role != "assistant" && !_.isString(content)) return str;
-            return str + content;
-          }, "");
-          const chunk = text.substring(
-            data.choices[0].message.content.length - textOffset,
-            text.length
+        const text = (result.contents || []).reduce((str, part) => {
+          const { role, content } = part;
+          if (role != "assistant" && !_.isString(content)) return str;
+          return str + content;
+        }, "");
+        let chunk = text.substring(
+          data.choices[0].message.content.length - textOffset,
+          text.length
+        );
+        if (chunk && result.contentType == "text2image") {
+          chunk = chunk.replace(
+            /https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=\,]*)/gi,
+            (url) => {
+              const urlObj = new URL(url);
+              urlObj.search = "";
+              return urlObj.toString();
+            }
           );
-          data.choices[0].message.content += chunk;
+        }
+        if (result.msgStatus != "finished") {
+          if (result.contentType == "text")
+            data.choices[0].message.content += chunk;
         } else {
-          if(!result.canShare)
-            data.choices[0].message.content += '\n[内容由于不合规被停止生成，我们换个话题吧]';
-          if(result.errorCode)
+          data.choices[0].message.content += chunk;
+          if (!result.canShare)
+            data.choices[0].message.content +=
+              "\n[内容由于不合规被停止生成，我们换个话题吧]";
+          if (result.errorCode)
             data.choices[0].message.content += `服务暂时不可用，第三方响应错误：${result.errorCode}`;
           resolve(data);
         }
@@ -367,7 +376,7 @@ function createTransStream(stream: any, endCallback?: Function) {
   const created = util.unixTimestamp();
   // 创建转换流
   const transStream = new PassThrough();
-  let content = '';
+  let content = "";
   !transStream.closed &&
     transStream.write(
       `data: ${JSON.stringify({
@@ -392,49 +401,59 @@ function createTransStream(stream: any, endCallback?: Function) {
       const result = _.attempt(() => JSON.parse(event.data));
       if (_.isError(result))
         throw new Error(`Stream response invalid: ${event.data}`);
+      const text = (result.contents || []).reduce((str, part) => {
+        const { role, content } = part;
+        if (role != "assistant" && !_.isString(content)) return str;
+        return str + content;
+      }, "");
+      let chunk = text.substring(content.length, text.length);
+      if (chunk && result.contentType == "text2image") {
+        chunk = chunk.replace(
+          /https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=\,]*)/gi,
+          (url) => {
+            const urlObj = new URL(url);
+            urlObj.search = "";
+            return urlObj.toString();
+          }
+        );
+      }
       if (result.msgStatus != "finished") {
-        const text = (result.contents || []).reduce((str, part) => {
-          const { role, content } = part;
-          if (role != "assistant" && !_.isString(content)) return str;
-          return str + content;
-        }, "");
-        const chunk = text.substring(content.length, text.length);
-        if(chunk) {
+        if (chunk && result.contentType == "text") {
           content += chunk;
           const data = `data: ${JSON.stringify({
-            id: result.conversation_id,
+            id: result.sessionId,
             model: MODEL_NAME,
-            object: 'chat.completion.chunk',
+            object: "chat.completion.chunk",
             choices: [
-              { index: 0, delta: { content: chunk }, finish_reason: null }
+              { index: 0, delta: { content: chunk }, finish_reason: null },
             ],
-            created
+            created,
           })}\n\n`;
           !transStream.closed && transStream.write(data);
         }
       } else {
-        let delta = {};
-        if(!result.canShare)
-          delta = { content: '\n[内容由于不合规被停止生成，我们换个话题吧]' }
-        if(result.errorCode)
-          delta = { content: `服务暂时不可用，第三方响应错误：${result.errorCode}` };
+        const delta = { content: chunk || "" };
+        if (!result.canShare)
+          delta.content += "\n[内容由于不合规被停止生成，我们换个话题吧]";
+        if (result.errorCode)
+          delta.content += `服务暂时不可用，第三方响应错误：${result.errorCode}`;
         const data = `data: ${JSON.stringify({
-          id: result.conversation_id,
+          id: result.sessionId,
           model: MODEL_NAME,
-          object: 'chat.completion.chunk',
+          object: "chat.completion.chunk",
           choices: [
             {
               index: 0,
               delta,
-              finish_reason: 'stop'
-            }
+              finish_reason: "stop",
+            },
           ],
           usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
-          created
+          created,
         })}\n\n`;
         !transStream.closed && transStream.write(data);
-        !transStream.closed && transStream.end('data: [DONE]\n\n');
-        content = '';
+        !transStream.closed && transStream.end("data: [DONE]\n\n");
+        content = "";
         endCallback && endCallback(result.sessionId);
       }
       // else
@@ -468,27 +487,27 @@ function tokenSplit(authorization: string) {
 
 /**
  * 生成Cookies
- * 
+ *
  * @param ticket login_tongyi_ticket值
  */
 function generateCookie(ticket: string) {
   return [
-    // `login_aliyunid_csrf=_csrf_tk_1338411200877960`,
-    // '_samesite_flag_=true',
-    // 'cookie2=17f5d8b4b310ced751b4884bf6f90a59',
-    // `munb=2205561979317`,
-    // `csg=d2a7667c`,
-    // `t=b147e56818bb17773dbbac0b0f5124d4`,
-    // `_tb_token_=e0e1e0eaf6397`,
     `login_tongyi_ticket=${ticket}`,
-    // `cna=2BIPGQLBaUoCAXF0dTVJX4J7`,
-    // `cnaui=1717007863755884`,
-    // `atpsida=96034589ac4b10f25d62eeb3_1711200918_2`,
-    // `isg=BJeXsmIBvhDupD4W9uGbnvw8Jg3h3Gs-fDl6NunHdWZIGLxa9a2mj8r6e7gGxkO2`,
-    // `tfstk=crDFBRcFK801Valh3RezgJtCWRxdaCMmeNr7teNJ-WUBJiF8usY1ylAoB5PfbaVh.`,
-    // `aui=1717007863755884`,
-    // `sca=48fca504`
-  ].join('; ');
+    '_samesite_flag_=true',
+    `t=${util.uuid(false)}`,
+    // `login_aliyunid_csrf=_csrf_tk_${util.generateRandomString({ charset: 'numeric', length: 15 })}`,
+    // `cookie2=${util.uuid(false)}`,
+    // `munb=22${util.generateRandomString({ charset: 'numeric', length: 11 })}`,
+    // `csg=`,
+    // `_tb_token_=${util.generateRandomString({ length: 10, capitalization: 'lowercase' })}`,
+    // `cna=`,
+    // `cnaui=`,
+    // `atpsida=`,
+    // `isg=`,
+    // `tfstk=`,
+    // `aui=`,
+    // `sca=`
+  ].join("; ");
 }
 
 export default {
