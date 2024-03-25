@@ -109,6 +109,7 @@ async function createCompletion(
         headers: {
           Cookie: generateCookie(ticket),
           ...FAKE_HEADERS,
+          Accept: 'text/event-stream'
         },
         timeout: 120000,
         validateStatus: () => true,
@@ -183,6 +184,7 @@ async function createCompletionStream(
         headers: {
           Cookie: generateCookie(ticket),
           ...FAKE_HEADERS,
+          Accept: 'text/event-stream'
         },
         timeout: 120000,
         validateStatus: () => true,
@@ -310,7 +312,6 @@ async function receiveStream(stream: any): Promise<any> {
       usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
       created: util.unixTimestamp(),
     };
-    let textOffset = 0;
     const parser = createParser((event) => {
       try {
         if (event.type !== "event") return;
@@ -325,9 +326,10 @@ async function receiveStream(stream: any): Promise<any> {
           if (role != "assistant" && !_.isString(content)) return str;
           return str + content;
         }, "");
+        const exceptCharIndex = text.indexOf('�');
         let chunk = text.substring(
-          data.choices[0].message.content.length - textOffset,
-          text.length
+          data.choices[0].message.content.length,
+          exceptCharIndex == -1 ? text.length : exceptCharIndex
         );
         if (chunk && result.contentType == "text2image") {
           chunk = chunk.replace(
@@ -406,7 +408,8 @@ function createTransStream(stream: any, endCallback?: Function) {
         if (role != "assistant" && !_.isString(content)) return str;
         return str + content;
       }, "");
-      let chunk = text.substring(content.length, text.length);
+      const exceptCharIndex = text.indexOf('�');
+      let chunk = text.substring(content.length, exceptCharIndex == -1 ? text.length : exceptCharIndex);
       if (chunk && result.contentType == "text2image") {
         chunk = chunk.replace(
           /https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=\,]*)/gi,
@@ -495,6 +498,11 @@ function generateCookie(ticket: string) {
     `login_tongyi_ticket=${ticket}`,
     '_samesite_flag_=true',
     `t=${util.uuid(false)}`,
+    'channel=oug71n2fX3Jd5ualEfKACRvnsceUtpjUC5jHBpfWnSOXKhkvBNuSO8bG3v4HHjCgB722h7LqbHkB6sAxf3OvgA%3D%3D',
+    'currentRegionId=cn-shenzhen',
+    'aliyun_country=CN',
+    'aliyun_lang=zh',
+    'aliyun_site=CN',
     // `login_aliyunid_csrf=_csrf_tk_${util.generateRandomString({ charset: 'numeric', length: 15 })}`,
     // `cookie2=${util.uuid(false)}`,
     // `munb=22${util.generateRandomString({ charset: 'numeric', length: 11 })}`,
