@@ -260,6 +260,9 @@ async function generateImages(
     // 异步移除会话，如果消息不合规，此操作可能会抛出数据库错误异常，请忽略
     removeConversation(convId, ticket).catch((err) => console.error(err));
 
+    if(imageUrls.length == 0)
+      throw new APIException(EX.API_IMAGE_GENERATION_FAILED);
+
     return imageUrls;
   })().catch((err) => {
     if (retryCount < MAX_RETRY_COUNT) {
