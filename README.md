@@ -185,7 +185,7 @@ pm2 stop qwen-free-api
 header 需要设置 Authorization 头部：
 
 ```
-Authorization: Bearer [refresh_token]
+Authorization: Bearer [login_tongyi_ticket]
 ```
 
 请求数据：
@@ -226,6 +226,39 @@ Authorization: Bearer [refresh_token]
         "total_tokens": 2
     },
     "created": 1710152062
+}
+```
+
+### AI绘图
+
+对话补全接口，与openai的 [images-create-api](https://platform.openai.com/docs/api-reference/images/create) 兼容。
+
+**POST /v1/images/generations**
+
+header 需要设置 Authorization 头部：
+
+```
+Authorization: Bearer [login_tongyi_ticket]
+```
+
+请求数据：
+```json
+{
+    // 可以乱填
+    "model": "wanxiang",
+    "prompt": "一只可爱的猫"
+}
+```
+
+响应数据：
+```json
+{
+    "created": 1711507734,
+    "data": [
+        {
+            "url": "https://wanx.alicdn.com/wanx/1111111111/text_to_image/7248e85cfda6491aae59c54e7e679b17_0.png"
+        }
+    ]
 }
 ```
 
