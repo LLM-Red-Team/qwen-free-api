@@ -1,6 +1,6 @@
 {
   "name": "qwen-free-api",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Qwen Free API Server",
   "type": "module",
   "main": "dist/index.js",
