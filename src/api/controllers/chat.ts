@@ -323,9 +323,8 @@ function messagesPrepare(messages: any[]) {
         return _content + (v["text"] || "");
       }, content);
     }
-    return (content += `<|im_start|>${message.role || "user"}\n${
-      message.content
-    }<|im_end|>\n`);
+    return (content += `<|im_start|>${message.role || "user"}\n${message.content
+      }<|im_end|>\n`);
   }, "");
   return [
     {
@@ -383,7 +382,9 @@ async function receiveStream(stream: any): Promise<any> {
           throw new Error(`Stream response invalid: ${event.data}`);
         if (!data.id && result.sessionId) data.id = result.sessionId;
         const text = (result.contents || []).reduce((str, part) => {
-          const { role, content } = part;
+          const { contentType, role, content } = part;
+          console.log(part);
+          if (contentType != 'text' && contentType != 'text2image') return str;
           if (role != "assistant" && !_.isString(content)) return str;
           return str + content;
         }, "");
@@ -467,7 +468,8 @@ function createTransStream(stream: any, endCallback?: Function) {
       if (_.isError(result))
         throw new Error(`Stream response invalid: ${event.data}`);
       const text = (result.contents || []).reduce((str, part) => {
-        const { role, content } = part;
+        const { contentType, role, content } = part;
+        if (contentType != 'text' && contentType != 'text2image') return str;
         if (role != "assistant" && !_.isString(content)) return str;
         return str + content;
       }, "");
