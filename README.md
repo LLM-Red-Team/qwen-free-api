@@ -9,9 +9,11 @@
 
 与ChatGPT接口完全兼容。
 
-还有以下三个free-api欢迎关注：
+还有以下四个free-api欢迎关注：
 
 Moonshot AI（Kimi.ai）接口转API [kimi-free-api](https://github.com/LLM-Red-Team/kimi-free-api)
+
+阶跃星辰 (跃问StepChat) 接口转API [step-free-api](https://github.com/LLM-Red-Team/step-free-api)
 
 ZhipuAI (智谱清言) 接口转API [glm-free-api](https://github.com/LLM-Red-Team/glm-free-api)
 
@@ -302,3 +304,7 @@ keepalive_timeout 120;
 ### Token统计
 
 由于推理侧不在qwen-free-api，因此token不可统计，将以固定数字返回。
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=LLM-Red-Team/qwen-free-api&type=Date)](https://star-history.com/#LLM-Red-Team/qwen-free-api&Date)
