@@ -5,7 +5,7 @@
 ![](https://img.shields.io/github/forks/llm-red-team/qwen-free-api.svg)
 ![](https://img.shields.io/docker/pulls/vinlic/qwen-free-api.svg)
 
-支持高速流式输出、支持多轮对话、支持无水印AI绘图、支持长文档解读（正在开发）、图像解析（正在开发），零配置部署，多路token支持，自动清理会话痕迹。
+支持高速流式输出、支持多轮对话、支持无水印AI绘图、支持长文档解读、图像解析，零配置部署，多路token支持，自动清理会话痕迹。
 
 与ChatGPT接口完全兼容。
 
@@ -66,11 +66,11 @@ https://udify.app/chat/qOXzVl5kkvhQXM8r
 
 ### 长文档解读
 
-正在开发...
+![AI绘图](./doc/example-5.png)
 
 ### 图像解析
 
-正在开发...
+![AI绘图](./doc/example-6.png)
 
 ### 10线程并发测试
 
@@ -276,11 +276,127 @@ Authorization: Bearer [login_tongyi_ticket]
 
 ### 文档解读
 
-正在开发...
+提供一个可访问的文件URL或者BASE64_URL进行解析。
+
+**POST /v1/chat/completions**
+
+header 需要设置 Authorization 头部：
+
+```
+Authorization: Bearer [refresh_token]
+```
+
+请求数据：
+```json
+{
+    "model": "qwen",
+    "messages": [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "file",
+                    "file_url": {
+                        "url": "https://mj101-1317487292.cos.ap-shanghai.myqcloud.com/ai/test.pdf"
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "文档里说了什么？"
+                }
+            ]
+        }
+    ]
+}
+```
+
+响应数据：
+```json
+{
+    "id": "b56ea6c9e86140429fa2de6a6ec028ff",
+    "model": "qwen",
+    "object": "chat.completion",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "文档中包含了四个古代魔法仪式或咒语的描述，它们似乎旨在影响或控制一个特定女性的情感和行为，使其对施术者产生强烈的爱意。以下是每个仪式的具体内容：\n\n1. **仪式一**（PMG 4.1390 – 1495）：\n   - 施术者需留下一些面包，将其掰成七小块。\n   - 前往一处英雄、角斗士或其他暴力死亡者丧生的地方。\n   - 对着面包碎片念诵咒语后丢弃，并从该地取一些受污染的泥土扔进目标女性的住所。\n   - 咒语内容包括向命运三女神（Moirai）、罗马版的命运女神（Fates）、自然力量（Daemons）、饥荒与嫉妒之神以及非正常死亡者献祭食物，并请求他们以痛苦折磨目标，使她在梦中惊醒，心生忧虑与恐惧，最终跟随施术者的步伐并顺从其意愿。此过程以赫卡忒（Hecate）女神为命令的源泉。\n\n2. **仪式二**（PMG 4.1342 – 57）：\n   - 施术者召唤恶魔（Daemon），通过一系列神秘的神祇名号（如Erekisephthe Araracharara Ephthesikere）要求其将名为Tereous的女子（Apia所生）带至施术者Didymos（Taipiam所生）身边。\n   - 请求该女子在灵魂、心智及女性器官上遭受剧烈痛苦，直至她主动找寻Didymos并与之紧密相连（唇对唇、发对发、腹部对腹部）。整个过程要求立即执行。\n\n3. **仪式三**（PGM 4.1265 – 74）：\n   - 揭示了阿佛洛狄忒（Aphrodite）鲜为人知的名字——NEPHERIĒRI[nfr-iry-t]。\n   - 如果想赢得一位美丽女子的芳心，施术者应保持三天纯净，献上乳香，并在心中默念该名字七次。\n   - 这样的做法需持续七天，据说这样便能成功吸引女子。\n\n4. **仪式四**（PGM 4.1496 – 1）：\n   - 施术者在燃烧的煤炭上供奉没药（myrrh），同时念诵咒语。\n   - 咒语将没药称为“苦涩的调和者”、“热力的激发者”，并命令它前往指定的女子（及其母亲的名字）处，阻止她进行日常活动（如坐、饮、食、注视他人、亲吻他人），迫使她心中只有施术者，对其产生强烈的欲望与爱意。\n   - 咒语还指示没药直接穿透女子的灵魂，驻留在其心中，焚烧其内脏、胸部、肝脏、气息、骨骼、骨髓，直到她来到施术者身边。\n\n这些仪式反映了古代魔法实践中试图借助超自然力量操控他人情感与行为的企图，涉及对神灵、恶魔、神秘名字及特定物质（如面包、泥土、乳香、没药）的运用，通常伴随着严格的仪式规程和咒语念诵。此类行为在现代伦理和法律框架下被视为不恰当甚至违法，且缺乏科学依据。"
+            },
+            "finish_reason": "stop"
+        }
+    ],
+    "usage": {
+        "prompt_tokens": 1,
+        "completion_tokens": 1,
+        "total_tokens": 2
+    },
+    "created": 1712253736
+}
+```
 
 ### 图像解析
 
-正在开发...
+提供一个可访问的图像URL或者BASE64_URL进行解析。
+
+此格式兼容 [gpt-4-vision-preview](https://platform.openai.com/docs/guides/vision) API格式，您也可以用这个格式传送文档进行解析。
+
+**POST /v1/chat/completions**
+
+header 需要设置 Authorization 头部：
+
+```
+Authorization: Bearer [refresh_token]
+```
+
+请求数据：
+```json
+{
+    "model": "qwen",
+    "messages": [
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "file",
+                    "file_url": {
+                        "url": "https://img.alicdn.com/imgextra/i1/O1CN01CC9kic1ig1r4sAY5d_!!6000000004441-2-tps-880-210.png"
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": "图像描述了什么？"
+                }
+            ]
+        }
+    ]
+}
+```
+
+响应数据：
+```json
+{
+    "id": "895fbe7fa22442d499ba67bb5213e842",
+    "model": "qwen",
+    "object": "chat.completion",
+    "choices": [
+        {
+            "index": 0,
+            "message": {
+                "role": "assistant",
+                "content": "图像展示了通义千问的标志，一个紫色的六边形和一个蓝色的三角形，以及“通义千问”四个白色的汉字。"
+            },
+            "finish_reason": "stop"
+        }
+    ],
+    "usage": {
+        "prompt_tokens": 1,
+        "completion_tokens": 1,
+        "total_tokens": 2
+    },
+    "created": 1712254066
+}
+```
 
 ## 注意事项
 

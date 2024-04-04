@@ -26,6 +26,7 @@
     "cron": "^3.1.6",
     "date-fns": "^3.3.1",
     "eventsource-parser": "^1.1.2",
+    "form-data": "^4.0.0",
     "fs-extra": "^11.2.0",
     "koa": "^2.15.0",
     "koa-body": "^5.0.0",

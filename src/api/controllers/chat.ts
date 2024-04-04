@@ -4,6 +4,7 @@ import http2 from "http2";
 import path from "path";
 import _ from "lodash";
 import mime from "mime";
+import FormData from "form-data";
 import axios, { AxiosResponse } from "axios";
 
 import APIException from "@/lib/exceptions/APIException.ts";
@@ -87,18 +88,20 @@ async function createCompletion(
 
     // 提取引用文件URL并上传qwen获得引用的文件ID列表
     const refFileUrls = extractRefFileUrls(messages);
-    // const refs = refFileUrls.length
-    //   ? await Promise.all(
-    //       refFileUrls.map((fileUrl) => uploadFile(fileUrl, ticket))
-    //     )
-    //   : [];
+    const refs = refFileUrls.length
+      ? await Promise.all(
+          refFileUrls.map((fileUrl) => uploadFile(fileUrl, ticket))
+        )
+      : [];
 
     // 请求流
-    const session: http2.ClientHttp2Session = await new Promise((resolve, reject) => {
-      const session = http2.connect("https://qianwen.biz.aliyun.com");
-      session.on('connect', () => resolve(session));
-      session.on("error", reject);
-    });
+    const session: http2.ClientHttp2Session = await new Promise(
+      (resolve, reject) => {
+        const session = http2.connect("https://qianwen.biz.aliyun.com");
+        session.on("connect", () => resolve(session));
+        session.on("error", reject);
+      }
+    );
     const req = session.request({
       ":method": "POST",
       ":path": "/dialog/conversation",
@@ -118,7 +121,7 @@ async function createCompletion(
         sessionId: "",
         sessionType: "text_chat",
         parentMsgId: "",
-        contents: messagesPrepare(messages),
+        contents: messagesPrepare(messages, refs),
       })
     );
     req.setEncoding("utf8");
@@ -169,16 +172,16 @@ async function createCompletionStream(
 
     // 提取引用文件URL并上传qwen获得引用的文件ID列表
     const refFileUrls = extractRefFileUrls(messages);
-    // const refs = refFileUrls.length
-    //   ? await Promise.all(
-    //       refFileUrls.map((fileUrl) => uploadFile(fileUrl, ticket))
-    //     )
-    //   : [];
+    const refs = refFileUrls.length
+      ? await Promise.all(
+          refFileUrls.map((fileUrl) => uploadFile(fileUrl, ticket))
+        )
+      : [];
 
     // 请求流
     session = await new Promise((resolve, reject) => {
       const session = http2.connect("https://qianwen.biz.aliyun.com");
-      session.on('connect', () => resolve(session));
+      session.on("connect", () => resolve(session));
       session.on("error", reject);
     });
     const req = session.request({
@@ -200,7 +203,7 @@ async function createCompletionStream(
         sessionId: "",
         sessionType: "text_chat",
         parentMsgId: "",
-        contents: messagesPrepare(messages),
+        contents: messagesPrepare(messages, refs),
       })
     );
     req.setEncoding("utf8");
@@ -307,29 +310,34 @@ async function generateImages(
  * @param messages 参考gpt系列消息格式，多轮对话请完整提供上下文
  */
 function extractRefFileUrls(messages: any[]) {
-  return messages.reduce((urls, message) => {
-    if (_.isArray(message.content)) {
-      message.content.forEach((v) => {
-        if (!_.isObject(v) || !["file", "image_url"].includes(v["type"]))
-          return;
-        // qwen-free-api支持格式
-        if (
-          v["type"] == "file" &&
-          _.isObject(v["file_url"]) &&
-          _.isString(v["file_url"]["url"])
-        )
-          urls.push(v["file_url"]["url"]);
-        // 兼容gpt-4-vision-preview API格式
-        else if (
-          v["type"] == "image_url" &&
-          _.isObject(v["image_url"]) &&
-          _.isString(v["image_url"]["url"])
-        )
-          urls.push(v["image_url"]["url"]);
-      });
-    }
+  const urls = [];
+  // 如果没有消息，则返回[]
+  if (!messages.length) {
     return urls;
-  }, []);
+  }
+  // 只获取最新的消息
+  const lastMessage = messages[messages.length - 1];
+  if (_.isArray(lastMessage.content)) {
+    lastMessage.content.forEach((v) => {
+      if (!_.isObject(v) || !["file", "image_url"].includes(v["type"])) return;
+      // glm-free-api支持格式
+      if (
+        v["type"] == "file" &&
+        _.isObject(v["file_url"]) &&
+        _.isString(v["file_url"]["url"])
+      )
+        urls.push(v["file_url"]["url"]);
+      // 兼容gpt-4-vision-preview API格式
+      else if (
+        v["type"] == "image_url" &&
+        _.isObject(v["image_url"]) &&
+        _.isString(v["image_url"]["url"])
+      )
+        urls.push(v["image_url"]["url"]);
+    });
+  }
+  logger.info("本次请求上传：" + urls.length + "个文件");
+  return urls;
 }
 
 /**
@@ -342,12 +350,12 @@ function extractRefFileUrls(messages: any[]) {
  *
  * @param messages 参考gpt系列消息格式，多轮对话请完整提供上下文
  */
-function messagesPrepare(messages: any[]) {
+function messagesPrepare(messages: any[], refs: any[] = []) {
   const content = messages.reduce((content, message) => {
     if (_.isArray(message.content)) {
       return message.content.reduce((_content, v) => {
         if (!_.isObject(v) || v["type"] != "text") return _content;
-        return _content + (v["text"] || "");
+        return _content + `<|im_start|>${message.role || "user"}\n${v["text"] || ""}<|im_end|>\n`;
       }, content);
     }
     return (content += `<|im_start|>${message.role || "user"}\n${
@@ -361,6 +369,7 @@ function messagesPrepare(messages: any[]) {
       contentType: "text",
       content,
     },
+    ...refs
   ];
 }
 
@@ -451,10 +460,7 @@ async function receiveStream(stream: any): Promise<any> {
       }
     });
     // 将流数据喂给SSE转换器
-    stream.on("data", (buffer) => {
-      console.log(buffer.toString());
-      parser.feed(buffer.toString());
-    });
+    stream.on("data", (buffer) => parser.feed(buffer.toString()));
     stream.once("error", (err) => reject(err));
     stream.once("close", () => resolve(data));
     stream.end();
@@ -639,6 +645,208 @@ async function receiveImages(
     stream.once("error", (err) => reject(err));
     stream.once("close", () => resolve({ convId, imageUrls }));
   });
+}
+
+/**
+ * 获取上传参数
+ *
+ * @param ticket login_tongyi_ticket值
+ */
+async function acquireUploadParams(ticket: string) {
+  const result = await axios.post(
+    "https://qianwen.biz.aliyun.com/dialog/uploadToken",
+    {},
+    {
+      timeout: 15000,
+      headers: {
+        Cookie: generateCookie(ticket),
+        ...FAKE_HEADERS,
+      },
+      validateStatus: () => true,
+    }
+  );
+  const { data } = checkResult(result);
+  return data;
+}
+
+/**
+ * 预检查文件URL有效性
+ *
+ * @param fileUrl 文件URL
+ */
+async function checkFileUrl(fileUrl: string) {
+  if (util.isBASE64Data(fileUrl)) return;
+  const result = await axios.head(fileUrl, {
+    timeout: 15000,
+    validateStatus: () => true,
+  });
+  if (result.status >= 400)
+    throw new APIException(
+      EX.API_FILE_URL_INVALID,
+      `File ${fileUrl} is not valid: [${result.status}] ${result.statusText}`
+    );
+  // 检查文件大小
+  if (result.headers && result.headers["content-length"]) {
+    const fileSize = parseInt(result.headers["content-length"], 10);
+    if (fileSize > FILE_MAX_SIZE)
+      throw new APIException(
+        EX.API_FILE_EXECEEDS_SIZE,
+        `File ${fileUrl} is not valid`
+      );
+  }
+}
+
+/**
+ * 上传文件
+ *
+ * @param fileUrl 文件URL
+ * @param ticket login_tongyi_ticket值
+ */
+async function uploadFile(fileUrl: string, ticket: string) {
+  // 预检查远程文件URL可用性
+  await checkFileUrl(fileUrl);
+
+  let filename, fileData, mimeType;
+  // 如果是BASE64数据则直接转换为Buffer
+  if (util.isBASE64Data(fileUrl)) {
+    mimeType = util.extractBASE64DataFormat(fileUrl);
+    const ext = mime.getExtension(mimeType);
+    filename = `${util.uuid()}.${ext}`;
+    fileData = Buffer.from(util.removeBASE64DataHeader(fileUrl), "base64");
+  }
+  // 下载文件到内存，如果您的服务器内存很小，建议考虑改造为流直传到下一个接口上，避免停留占用内存
+  else {
+    filename = path.basename(fileUrl);
+    ({ data: fileData } = await axios.get(fileUrl, {
+      responseType: "arraybuffer",
+      // 100M限制
+      maxContentLength: FILE_MAX_SIZE,
+      // 60秒超时
+      timeout: 60000,
+    }));
+  }
+
+  // 获取文件的MIME类型
+  mimeType = mimeType || mime.getType(filename);
+
+  // 获取上传参数
+  const { accessId, policy, signature, dir } = await acquireUploadParams(
+    ticket
+  );
+
+  const formData = new FormData();
+  formData.append("OSSAccessKeyId", accessId);
+  formData.append("policy", policy);
+  formData.append("signature", signature);
+  formData.append("key", `${dir}${filename}`);
+  formData.append("dir", dir);
+  formData.append("success_action_status", "200");
+  formData.append("file", fileData, {
+    filename,
+    contentType: mimeType,
+  });
+
+  // 上传文件到OSS
+  await axios.request({
+    method: "POST",
+    url: "https://broadscope-dialogue.oss-cn-beijing.aliyuncs.com/",
+    data: formData,
+    // 100M限制
+    maxBodyLength: FILE_MAX_SIZE,
+    // 60秒超时
+    timeout: 120000,
+    headers: {
+      ...FAKE_HEADERS,
+      "X-Requested-With": "XMLHttpRequest"
+    }
+  });
+
+  const isImage = [
+    'image/jpeg',
+    'image/jpg',
+    'image/tiff',
+    'image/png',
+    'image/bmp',
+    'image/gif'
+  ].includes(mimeType);
+
+  if(isImage) {
+    const result = await axios.post(
+      "https://qianwen.biz.aliyun.com/dialog/downloadLink",
+      {
+        fileKey: filename,
+        fileType: "image",
+        dir
+      },
+      {
+        timeout: 15000,
+        headers: {
+          Cookie: generateCookie(ticket),
+          ...FAKE_HEADERS,
+        },
+        validateStatus: () => true,
+      }
+    );
+    const { data } = checkResult(result);
+    return {
+      role: "user",
+      contentType: "image",
+      content: data.url
+    };
+  }
+  else {
+    let result = await axios.post(
+      "https://qianwen.biz.aliyun.com/dialog/downloadLink/batch",
+      {
+        fileKeys: [filename],
+        fileType: "file",
+        dir
+      },
+      {
+        timeout: 15000,
+        headers: {
+          Cookie: generateCookie(ticket),
+          ...FAKE_HEADERS,
+        },
+        validateStatus: () => true,
+      }
+    );
+    const { data } = checkResult(result);
+    if(!data.results[0] || !data.results[0].url)
+      throw new Error(`文件上传失败：${data.results[0] ? data.results[0].errorMsg : '未知错误'}`);
+    const url = data.results[0].url;
+    const startTime = util.timestamp();
+    while(true) {
+      result = await axios.post(
+        "https://qianwen.biz.aliyun.com/dialog/secResult/batch",
+        {
+          urls: [url]
+        },
+        {
+          timeout: 15000,
+          headers: {
+            Cookie: generateCookie(ticket),
+            ...FAKE_HEADERS,
+          },
+          validateStatus: () => true,
+        }
+      );
+      const { data } = checkResult(result);
+      if(data.pollEndFlag) {
+        if(data.statusList[0] && data.statusList[0].status === 0)
+          throw new Error(`文件处理失败：${data.statusList[0].errorMsg || '未知错误'}`);
+        break;
+      }
+      if(util.timestamp() > startTime + 120000)
+        throw new Error("文件处理超时：超出120秒");
+    }
+    return {
+      role: "user",
+      contentType: "file",
+      content: url,
+      ext: { fileSize: fileData.byteLength }
+    };
+  }
 }
 
 /**
