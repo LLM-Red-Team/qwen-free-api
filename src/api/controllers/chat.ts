@@ -767,7 +767,16 @@ async function uploadFile(fileUrl: string, ticket: string) {
     'image/tiff',
     'image/png',
     'image/bmp',
-    'image/gif'
+    'image/gif',
+    'image/svg+xml', 
+    'image/webp',
+    'image/ico',
+    'image/heic',
+    'image/heif',
+    'image/bmp',
+    'image/x-icon',
+    'image/vnd.microsoft.icon',
+    'image/x-png'
   ].includes(mimeType);
 
   if(isImage) {
