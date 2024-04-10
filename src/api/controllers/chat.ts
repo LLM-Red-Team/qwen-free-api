@@ -897,9 +897,35 @@ function generateCookie(ticket: string) {
   ].join("; ");
 }
 
+/**
+ * 获取Token存活状态
+ */
+async function getTokenLiveStatus(ticket: string) {
+  const result = await axios.post(
+    "https://qianwen.biz.aliyun.com/dialog/session/list",
+    {},
+    {
+      headers: {
+        Cookie: generateCookie(ticket),
+        ...FAKE_HEADERS,
+      },
+      timeout: 15000,
+      validateStatus: () => true,
+    }
+  );
+  try {
+    const { data } = checkResult(result);
+    return _.isArray(data);
+  }
+  catch(err) {
+    return false;
+  }
+}
+
 export default {
   createCompletion,
   createCompletionStream,
   generateImages,
+  getTokenLiveStatus,
   tokenSplit,
 };
