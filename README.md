@@ -35,6 +35,8 @@ ZhipuAI (智谱清言) 接口转API [glm-free-api](https://github.com/LLM-Red-Te
 * [接入准备](#接入准备)
 * [Docker部署](#Docker部署)
   * [Docker-compose部署](#Docker-compose部署)
+* [Render部署](#Render部署)
+* [Vercel部署](#Vercel部署)
 * [原生部署](#原生部署)
 * [接口列表](#接口列表)
   * [对话补全](#对话补全)
@@ -50,6 +52,12 @@ ZhipuAI (智谱清言) 接口转API [glm-free-api](https://github.com/LLM-Red-Te
 此链接仅临时测试功能，长期使用请自行部署。
 
 https://udify.app/chat/qOXzVl5kkvhQXM8r
+
+## 测试接口
+
+此接口实例部署在[Render](#Render部署)上面，遇到容器回收可能导致响应速度较慢，仅供测试，建议自行部署。
+
+https://qwen-free-api.onrender.com
 
 ## 效果示例
 
@@ -135,6 +143,33 @@ services:
       - "8000:8000"
     environment:
       - TZ=Asia/Shanghai
+```
+
+### Render部署
+
+**注意：部分部署区域可能无法连接glm，如容器日志出现请求超时或无法连接，请切换其他区域部署！**
+**注意：免费账户的容器实例将在一段时间不活动时自动停止运行，这会导致下次请求时遇到50秒或更长的延迟，建议通过 GET `/ping` 请求来维持容器活动**
+
+1. fork本项目到你的github账号下。
+
+2. 访问 [Render](https://dashboard.render.com/) 并登录你的github账号。
+
+3. 构建你的 Web Service（New+ -> Build and deploy from a Git repository -> Connect你fork的项目 -> 选择部署区域 -> 选择实例类型为Free -> Create Web Service）。
+
+4. 等待构建完成后，复制分配的域名并拼接URL访问即可。
+
+### Vercel部署
+
+**注意：Vercel免费账户的请求响应超时时间为10秒，但接口响应通常较久，可能会遇到Vercel返回的504超时错误！**
+
+请先确保安装了Node.js环境。
+
+```shell
+npm i -g vercel --registry http://registry.npmmirror.com
+vercel login
+git clone https://github.com/LLM-Red-Team/qwen-free-api
+cd qwen-free-api
+vercel --prod
 ```
 
 ## 原生部署
