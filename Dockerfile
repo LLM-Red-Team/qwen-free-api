@@ -16,6 +16,6 @@ COPY --from=BUILD_IMAGE /app/node_modules /app/node_modules
 
 WORKDIR /app
 
-EXPOSE 8000
+EXPOSE 8001
 
 CMD ["npm", "start"]
