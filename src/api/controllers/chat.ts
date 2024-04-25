@@ -361,7 +361,7 @@ function messagesPrepare(messages: any[], refs: any[] = []) {
     return (content += `<|im_start|>${message.role || "user"}\n${
       message.content
     }<|im_end|>\n`);
-  }, "").replace(/\!\[.+\]\(.+\)/g, "");
+  }, "").replace(/\!\[.*\]\(.+\)/g, "");
   logger.info("\n对话合并：\n" + content);
   return [
     {
