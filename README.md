@@ -1,6 +1,6 @@
 # Qwen AI Free 服务
 
-![](https://img.shields.io/github/license/llm-red-team/qwen-free-api.svg)
+[![](https://img.shields.io/github/license/llm-red-team/qwen-free-api.svg)](LICENSE)
 ![](https://img.shields.io/github/stars/llm-red-team/qwen-free-api.svg)
 ![](https://img.shields.io/github/forks/llm-red-team/qwen-free-api.svg)
 ![](https://img.shields.io/docker/pulls/vinlic/qwen-free-api.svg)
@@ -9,29 +9,23 @@
 
 与ChatGPT接口完全兼容。
 
-还有以下五个free-api欢迎关注：
+还有以下六个free-api欢迎关注：
 
 Moonshot AI（Kimi.ai）接口转API [kimi-free-api](https://github.com/LLM-Red-Team/kimi-free-api)
 
 阶跃星辰 (跃问StepChat) 接口转API [step-free-api](https://github.com/LLM-Red-Team/step-free-api)
 
-ZhipuAI (智谱清言) 接口转API [glm-free-api](https://github.com/LLM-Red-Team/glm-free-api)
+智谱AI (智谱清言) 接口转API [glm-free-api](https://github.com/LLM-Red-Team/glm-free-api)
 
-秘塔AI (metaso) 接口转API [metaso-free-api](https://github.com/LLM-Red-Team/metaso-free-api)
+秘塔AI (Metaso) 接口转API [metaso-free-api](https://github.com/LLM-Red-Team/metaso-free-api)
+
+讯飞星火（Spark）接口转API [spark-free-api](https://github.com/LLM-Red-Team/spark-free-api)
 
 聆心智能 (Emohaa) 接口转API [emohaa-free-api](https://github.com/LLM-Red-Team/emohaa-free-api)
 
-## 声明
-
-仅限自用，禁止对外提供服务或商用，避免对官方造成服务压力，否则风险自担！
-
-仅限自用，禁止对外提供服务或商用，避免对官方造成服务压力，否则风险自担！
-
-仅限自用，禁止对外提供服务或商用，避免对官方造成服务压力，否则风险自担！
-
 ## 目录
 
-* [声明](#声明)
+* [免责声明](#免责声明)
 * [在线体验](#在线体验)
 * [效果示例](#效果示例)
 * [接入准备](#接入准备)
@@ -48,18 +42,26 @@ ZhipuAI (智谱清言) 接口转API [glm-free-api](https://github.com/LLM-Red-Te
   * [login_tongyi_ticket存活检测](#login_tongyi_ticket存活检测)
 * [注意事项](#注意事项)
   * [Nginx反代优化](#Nginx反代优化)
+  * [Token统计](#Token统计)
+* [Star History](#star-history)
+  
+## 免责声明
+
+**逆向API是不稳定的，建议前往阿里云官方 https://dashscope.console.aliyun.com/ 付费使用API，避免封禁的风险。**
+
+**本组织和个人不接受任何资金捐助和交易，此项目是纯粹研究交流学习性质！**
+
+**仅限自用，禁止对外提供服务或商用，避免对官方造成服务压力，否则风险自担！**
+
+**仅限自用，禁止对外提供服务或商用，避免对官方造成服务压力，否则风险自担！**
+
+**仅限自用，禁止对外提供服务或商用，避免对官方造成服务压力，否则风险自担！**
 
 ## 在线体验
 
 此链接仅临时测试功能，长期使用请自行部署。
 
 https://udify.app/chat/qOXzVl5kkvhQXM8r
-
-## 测试接口
-
-此接口实例部署在[Render](#Render部署)上面，遇到容器回收可能导致响应速度较慢，仅供测试，建议自行部署。
-
-https://qwen-free-api.onrender.com
 
 ## 效果示例
 
