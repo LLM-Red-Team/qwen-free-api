@@ -34,6 +34,7 @@ Moonshot AI（Kimi.ai）接口转API [kimi-free-api](https://github.com/LLM-Red-
 * [Render部署](#Render部署)
 * [Vercel部署](#Vercel部署)
 * [原生部署](#原生部署)
+* [推荐使用客户端](#推荐使用客户端)
 * [接口列表](#接口列表)
   * [对话补全](#对话补全)
   * [AI绘图](#AI绘图)
@@ -223,6 +224,14 @@ pm2 reload qwen-free-api
 ```shell
 pm2 stop qwen-free-api
 ```
+
+## 推荐使用客户端
+
+使用以下二次开发客户端接入free-api系列项目更快更简单，支持文档/图像上传！
+
+由 [Clivia](https://github.com/Yanyutin753/lobe-chat) 二次开发的LobeChat [https://github.com/Yanyutin753/lobe-chat](https://github.com/Yanyutin753/lobe-chat)
+
+由 [时光@](https://github.com/SuYxh) 二次开发的ChatGPT Web [https://github.com/SuYxh/chatgpt-web-sea](https://github.com/SuYxh/chatgpt-web-sea)
 
 ## 接口列表
 
