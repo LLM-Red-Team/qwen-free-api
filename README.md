@@ -9,7 +9,7 @@
 
 与ChatGPT接口完全兼容。
 
-还有以下六个free-api欢迎关注：
+还有以下七个free-api欢迎关注：
 
 Moonshot AI（Kimi.ai）接口转API [kimi-free-api](https://github.com/LLM-Red-Team/kimi-free-api)
 
@@ -20,6 +20,8 @@ Moonshot AI（Kimi.ai）接口转API [kimi-free-api](https://github.com/LLM-Red-
 秘塔AI (Metaso) 接口转API [metaso-free-api](https://github.com/LLM-Red-Team/metaso-free-api)
 
 讯飞星火（Spark）接口转API [spark-free-api](https://github.com/LLM-Red-Team/spark-free-api)
+
+MiniMax（海螺AI）接口转API [hailuo-free-api](https://github.com/LLM-Red-Team/hailuo-free-api)
 
 聆心智能 (Emohaa) 接口转API [emohaa-free-api](https://github.com/LLM-Red-Team/emohaa-free-api)
 
@@ -34,6 +36,7 @@ Moonshot AI（Kimi.ai）接口转API [kimi-free-api](https://github.com/LLM-Red-
 * [Render部署](#Render部署)
 * [Vercel部署](#Vercel部署)
 * [原生部署](#原生部署)
+* [推荐使用客户端](#推荐使用客户端)
 * [接口列表](#接口列表)
   * [对话补全](#对话补全)
   * [AI绘图](#AI绘图)
@@ -233,6 +236,14 @@ pm2 reload qwen-free-api
 ```shell
 pm2 stop qwen-free-api
 ```
+
+## 推荐使用客户端
+
+使用以下二次开发客户端接入free-api系列项目更快更简单，支持文档/图像上传！
+
+由 [Clivia](https://github.com/Yanyutin753/lobe-chat) 二次开发的LobeChat [https://github.com/Yanyutin753/lobe-chat](https://github.com/Yanyutin753/lobe-chat)
+
+由 [时光@](https://github.com/SuYxh) 二次开发的ChatGPT Web [https://github.com/SuYxh/chatgpt-web-sea](https://github.com/SuYxh/chatgpt-web-sea)
 
 ## 接口列表
 
