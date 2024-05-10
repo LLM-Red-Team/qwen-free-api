@@ -39,7 +39,7 @@ Moonshot AI（Kimi.ai）接口转API [kimi-free-api](https://github.com/LLM-Red-
   * [AI绘图](#AI绘图)
   * [文档解读](#文档解读)
   * [图像解析](#图像解析)
-  * [login_tongyi_ticket存活检测](#login_tongyi_ticket存活检测)
+  * [ticket存活检测](#ticket存活检测)
 * [注意事项](#注意事项)
   * [Nginx反代优化](#Nginx反代优化)
   * [Token统计](#Token统计)
@@ -91,15 +91,25 @@ https://udify.app/chat/qOXzVl5kkvhQXM8r
 
 ## 接入准备
 
+### 方法1
+
 从 [通义千问](https://tongyi.aliyun.com/qianwen) 登录
 
 进入通义千问随便发起一个对话，然后F12打开开发者工具，从Application > Cookies中找到`login_tongyi_ticket`的值，这将作为Authorization的Bearer Token值：`Authorization: Bearer TOKEN`
 
 ![获取login_tongyi_ticket](./doc/example-0.png)
 
+### 方法2
+
+从 [阿里云](https://www.aliyun.com/) 登录（如果该账号有服务器等重要资产不建议使用）
+
+然后F12打开开发者工具，从Application > Cookies中找到`login_aliyunid_ticket`的值，这将作为Authorization的Bearer Token值：`Authorization: Bearer TOKEN`
+
+![获取login_aliyunid_ticket](./doc/example-7.png)
+
 ### 多账号接入
 
-你可以通过提供多个账号的login_tongyi_ticket，并使用,拼接提供：
+你可以通过提供多个账号的login_tongyi_ticket或login_aliyunid_ticket，并使用,拼接提供：
 
 Authorization: Bearer TOKEN1,TOKEN2,TOKEN3
 
@@ -237,7 +247,7 @@ pm2 stop qwen-free-api
 header 需要设置 Authorization 头部：
 
 ```
-Authorization: Bearer [login_tongyi_ticket]
+Authorization: Bearer [login_tongyi_ticket/login_aliyunid_ticket]
 ```
 
 请求数据：
@@ -245,6 +255,9 @@ Authorization: Bearer [login_tongyi_ticket]
 {
     // 模型名称随意填写
     "model": "qwen",
+    // 目前多轮对话基于消息合并实现，某些场景可能导致能力下降且受单轮最大token数限制
+    // 如果您想获得原生的多轮对话体验，可以传入上一轮消息获得的id，来接续上下文
+    // "conversation_id": "bc9ef150d0e44794ab624df958292300-40811965812e4782bb87f1a9e4e2b2cd",
     "messages": [
         {
             "role": "user",
@@ -259,7 +272,8 @@ Authorization: Bearer [login_tongyi_ticket]
 响应数据：
 ```json
 {
-    "id": "4c4267e7919a41baad8199414ceb5cea",
+    // 如果想获得原生多轮对话体验，此id，你可以传入到下一轮对话的conversation_id来接续上下文
+    "id": "bc9ef150d0e44794ab624df958292300-40811965812e4782bb87f1a9e4e2b2cd",
     "model": "qwen",
     "object": "chat.completion",
     "choices": [
@@ -290,7 +304,7 @@ Authorization: Bearer [login_tongyi_ticket]
 header 需要设置 Authorization 头部：
 
 ```
-Authorization: Bearer [login_tongyi_ticket]
+Authorization: Bearer [login_tongyi_ticket/login_aliyunid_ticket]
 ```
 
 请求数据：
@@ -438,9 +452,9 @@ Authorization: Bearer [refresh_token]
 }
 ```
 
-### login_tongyi_ticket存活检测
+### ticket存活检测
 
-检测login_tongyi_ticket是否存活，如果存活live未true，否则为false，请不要频繁（小于10分钟）调用此接口。
+检测login_tongyi_ticket或login_aliyunid_ticket是否存活，如果存活live未true，否则为false，请不要频繁（小于10分钟）调用此接口。
 
 **POST /token/check**
 
