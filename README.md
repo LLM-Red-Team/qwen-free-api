@@ -106,7 +106,7 @@ https://udify.app/chat/qOXzVl5kkvhQXM8r
 
 ### 方法2
 
-从 [阿里云](https://www.aliyun.com/) 登录（如果该账号有服务器等重要资产不建议使用），如果该账号之前未进入过[通义千问](https://tongyi.aliyun.com/qianwen) ，需要先进入通义协议，否则无法生效。
+从 [阿里云](https://www.aliyun.com/) 登录（如果该账号有服务器等重要资产不建议使用），如果该账号之前未进入过[通义千问](https://tongyi.aliyun.com/qianwen) ，需要先进入同意协议，否则无法生效。
 
 然后F12打开开发者工具，从Application > Cookies中找到`login_aliyunid_ticket`的值，这将作为Authorization的Bearer Token值：`Authorization: Bearer TOKEN`
 
