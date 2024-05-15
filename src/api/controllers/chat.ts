@@ -651,7 +651,7 @@ async function receiveImages(
           if (role != "assistant" && !_.isString(content)) return str;
           return str + content;
         }, "");
-        if (result.contentType == "text2image") {
+        if (result.contentFrom == "text2image") {
           const urls =
             text.match(
               /https?:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=\,]*)/gi
