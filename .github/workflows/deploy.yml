@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main # 触发工作流的分支，根据需要修改
+    workflow_dispatch: # 允许手动触发
 
 jobs:
   build_and_deploy:
