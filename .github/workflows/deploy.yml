@@ -1,0 +1,50 @@
+name: Build and Deploy
+on:
+  push:
+    branches:
+      - main # 触发工作流的分支，根据需要修改
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16 # 根据项目需求选择Node.js版本
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install PM2 globally
+      run: npm install -g pm2
+
+    - name: Build project
+      run: npm run build
+
+    - name: Deploy to GitHub Pages or copy to root (assuming you have necessary permissions)
+      run: |
+        # 这里假设你有权限直接写入仓库
+        # 首先清理之前的dist文件（如果存在）
+        -rm -rf ./dist
+        # 然后将新构建的dist文件复制到仓库根目录
+        cp -r ./dist/* ./
+        # 如果是部署到GitHub Pages，这里会有所不同，需要使用gh-pages等action
+        
+    - name: Commit changes
+      if: success() # 只有在前面的步骤成功时才进行提交
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Automatically deploy after build [skip ci]" # 添加[skip ci]以避免无限循环触发
+
+    - name: Push changes
+      if: success()
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUBS_TOKEN }}
+        branch: ${{ github.ref }}
