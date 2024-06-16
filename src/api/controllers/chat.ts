@@ -48,7 +48,7 @@ const FILE_MAX_SIZE = 100 * 1024 * 1024;
  *
  * 在对话流传输完毕后移除会话，避免创建的会话出现在用户的对话列表中
  *
- * @param ticket login_tongyi_ticket或login_aliyunid_ticket
+ * @param ticket tongyi_sso_ticket或login_aliyunid_ticket
  */
 async function removeConversation(convId: string, ticket: string) {
   const result = await axios.post(
@@ -73,7 +73,7 @@ async function removeConversation(convId: string, ticket: string) {
  *
  * @param model 模型名称
  * @param messages 参考gpt系列消息格式，多轮对话请完整提供上下文
- * @param ticket login_tongyi_ticket或login_aliyunid_ticket
+ * @param ticket tongyi_sso_ticket或login_aliyunid_ticket
  * @param refConvId 引用的会话ID
  * @param retryCount 重试次数
  */
@@ -166,7 +166,7 @@ async function createCompletion(
  *
  * @param model 模型名称
  * @param messages 参考gpt系列消息格式，多轮对话请完整提供上下文
- * @param ticket login_tongyi_ticket或login_aliyunid_ticket
+ * @param ticket tongyi_sso_ticket或login_aliyunid_ticket
  * @param refConvId 引用的会话ID
  * @param retryCount 重试次数
  */
@@ -689,7 +689,7 @@ async function receiveImages(
 /**
  * 获取上传参数
  *
- * @param ticket login_tongyi_ticket或login_aliyunid_ticket
+ * @param ticket tongyi_sso_ticket或login_aliyunid_ticket
  */
 async function acquireUploadParams(ticket: string) {
   const result = await axios.post(
@@ -739,7 +739,7 @@ async function checkFileUrl(fileUrl: string) {
  * 上传文件
  *
  * @param fileUrl 文件URL
- * @param ticket login_tongyi_ticket或login_aliyunid_ticket
+ * @param ticket tongyi_sso_ticket或login_aliyunid_ticket
  */
 async function uploadFile(fileUrl: string, ticket: string) {
   // 预检查远程文件URL可用性
@@ -909,19 +909,14 @@ function tokenSplit(authorization: string) {
 /**
  * 生成Cookies
  *
- * @param ticket login_tongyi_ticket或login_aliyunid_ticket
+ * @param ticket tongyi_sso_ticket或login_aliyunid_ticket
  */
 function generateCookie(ticket: string) {
   return [
-    `${ticket.length > 100 ? 'login_aliyunid_ticket' : 'login_tongyi_ticket'}=${ticket}`,
+    `${ticket.length > 100 ? 'login_aliyunid_ticket' : 'tongyi_sso_ticket'}=${ticket}`,
     'aliyun_choice=intl',
     "_samesite_flag_=true",
     `t=${util.uuid(false)}`,
-    "channel=oug71n2fX3Jd5ualEfKACRvnsceUtpjUC5jHBpfWnSOXKhkvBNuSO8bG3v4HHjCgB722h7LqbHkB6sAxf3OvgA%3D%3D",
-    "currentRegionId=cn-shenzhen",
-    "aliyun_country=CN",
-    "aliyun_lang=zh",
-    "aliyun_site=CN",
     // `login_aliyunid_csrf=_csrf_tk_${util.generateRandomString({ charset: 'numeric', length: 15 })}`,
     // `cookie2=${util.uuid(false)}`,
     // `munb=22${util.generateRandomString({ charset: 'numeric', length: 11 })}`,
