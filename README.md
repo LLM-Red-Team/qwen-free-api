@@ -1,5 +1,9 @@
 # Qwen AI Free 服务
 
+<hr>
+
+<span>[ 中文 | <a href="README_EN.md">English</a> ]</span>
+
 [![](https://img.shields.io/github/license/llm-red-team/qwen-free-api.svg)](LICENSE)
 ![](https://img.shields.io/github/stars/llm-red-team/qwen-free-api.svg)
 ![](https://img.shields.io/github/forks/llm-red-team/qwen-free-api.svg)
@@ -37,8 +41,8 @@ MiniMax（海螺AI）接口转API [hailuo-free-api](https://github.com/LLM-Red-T
 * [接入准备](#接入准备)
 * [Docker部署](#Docker部署)
   * [Docker-compose部署](#Docker-compose部署)
-* [Render部署](#Render部署)
-* [Vercel部署](#Vercel部署)
+  * [Render部署](#Render部署)
+  * [Vercel部署](#Vercel部署)
 * [原生部署](#原生部署)
 * [推荐使用客户端](#推荐使用客户端)
 * [接口列表](#接口列表)
