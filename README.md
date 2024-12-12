@@ -1,5 +1,9 @@
 # Qwen AI Free 服务
 
+<hr>
+
+<span>[ 中文 | <a href="README_EN.md">English</a> ]</span>
+
 [![](https://img.shields.io/github/license/llm-red-team/qwen-free-api.svg)](LICENSE)
 ![](https://img.shields.io/github/stars/llm-red-team/qwen-free-api.svg)
 ![](https://img.shields.io/github/forks/llm-red-team/qwen-free-api.svg)
@@ -37,8 +41,8 @@ MiniMax（海螺AI）接口转API [hailuo-free-api](https://github.com/LLM-Red-T
 * [接入准备](#接入准备)
 * [Docker部署](#Docker部署)
   * [Docker-compose部署](#Docker-compose部署)
-* [Render部署](#Render部署)
-* [Vercel部署](#Vercel部署)
+  * [Render部署](#Render部署)
+  * [Vercel部署](#Vercel部署)
 * [原生部署](#原生部署)
 * [推荐使用客户端](#推荐使用客户端)
 * [接口列表](#接口列表)
@@ -86,11 +90,11 @@ https://udify.app/chat/qOXzVl5kkvhQXM8r
 
 ### 长文档解读Demo
 
-![AI绘图](./doc/example-5.png)
+![长文本解读](./doc/example-5.png)
 
 ### 图像解析Demo
 
-![AI绘图](./doc/example-6.png)
+![图像解析](./doc/example-6.png)
 
 ### 10线程并发测试
 
@@ -116,9 +120,9 @@ https://udify.app/chat/qOXzVl5kkvhQXM8r
 
 ### 多账号接入
 
-你可以通过提供多个账号的tongyi_sso_ticket或login_aliyunid_ticket，并使用,拼接提供：
+你可以通过提供多个账号的`tongyi_sso_ticket`或`login_aliyunid_ticket`，并使用,拼接提供：
 
-Authorization: Bearer TOKEN1,TOKEN2,TOKEN3
+`Authorization: Bearer TOKEN1,TOKEN2,TOKEN3`
 
 每次请求服务会从中挑选一个。
 
