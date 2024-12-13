@@ -788,7 +788,7 @@ async function uploadFile(fileUrl: string, ticket: string) {
   // 上传文件到OSS
   await axios.request({
     method: "POST",
-    url: "https://broadscope-dialogue.oss-cn-beijing.aliyuncs.com/",
+    url: "https://broadscope-dialogue-new.oss-cn-beijing.aliyuncs.com/",
     data: formData,
     // 100M限制
     maxBodyLength: FILE_MAX_SIZE,
