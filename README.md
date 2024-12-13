@@ -9,11 +9,11 @@
 ![](https://img.shields.io/github/forks/llm-red-team/qwen-free-api.svg)
 ![](https://img.shields.io/docker/pulls/vinlic/qwen-free-api.svg)
 
-支持高速流式输出、支持多轮对话、支持无水印AI绘图、支持长文档解读、图像解析，零配置部署，多路token支持，自动清理会话痕迹。
+支持高速流式输出、支持多轮对话、支持无水印AI绘图、支持长文档解读、图像解析、联网检索，零配置部署，多路token支持，自动清理会话痕迹。
 
 与ChatGPT接口完全兼容。
 
-还有以下九个free-api欢迎关注：
+还有以下十个free-api欢迎关注：
 
 Moonshot AI（Kimi.ai）接口转API [kimi-free-api](https://github.com/LLM-Red-Team/kimi-free-api)
 
@@ -25,6 +25,8 @@ Moonshot AI（Kimi.ai）接口转API [kimi-free-api](https://github.com/LLM-Red-
 
 字节跳动（豆包）接口转API [doubao-free-api](https://github.com/LLM-Red-Team/doubao-free-api)
 
+字节跳动（即梦AI）接口转API [jimeng-free-api](https://github.com/LLM-Red-Team/jimeng-free-api)
+
 讯飞星火（Spark）接口转API [spark-free-api](https://github.com/LLM-Red-Team/spark-free-api)
 
 MiniMax（海螺AI）接口转API [hailuo-free-api](https://github.com/LLM-Red-Team/hailuo-free-api)
@@ -35,26 +37,36 @@ MiniMax（海螺AI）接口转API [hailuo-free-api](https://github.com/LLM-Red-T
 
 ## 目录
 
-* [免责声明](#免责声明)
-* [在线体验](#在线体验)
-* [效果示例](#效果示例)
-* [接入准备](#接入准备)
-* [Docker部署](#Docker部署)
-  * [Docker-compose部署](#Docker-compose部署)
-  * [Render部署](#Render部署)
-  * [Vercel部署](#Vercel部署)
-* [原生部署](#原生部署)
-* [推荐使用客户端](#推荐使用客户端)
-* [接口列表](#接口列表)
-  * [对话补全](#对话补全)
-  * [AI绘图](#AI绘图)
-  * [文档解读](#文档解读)
-  * [图像解析](#图像解析)
-  * [ticket存活检测](#ticket存活检测)
-* [注意事项](#注意事项)
-  * [Nginx反代优化](#Nginx反代优化)
-  * [Token统计](#Token统计)
-* [Star History](#star-history)
+- [Qwen AI Free 服务](#qwen-ai-free-服务)
+  - [目录](#目录)
+  - [免责声明](#免责声明)
+  - [效果示例](#效果示例)
+    - [验明正身Demo](#验明正身demo)
+    - [多轮对话Demo](#多轮对话demo)
+    - [AI绘图Demo](#ai绘图demo)
+    - [长文档解读Demo](#长文档解读demo)
+    - [图像解析Demo](#图像解析demo)
+    - [10线程并发测试](#10线程并发测试)
+  - [接入准备](#接入准备)
+    - [方法1](#方法1)
+    - [方法2](#方法2)
+    - [多账号接入](#多账号接入)
+  - [Docker部署](#docker部署)
+    - [Docker-compose部署](#docker-compose部署)
+    - [Render部署](#render部署)
+    - [Vercel部署](#vercel部署)
+  - [原生部署](#原生部署)
+  - [推荐使用客户端](#推荐使用客户端)
+  - [接口列表](#接口列表)
+    - [对话补全](#对话补全)
+    - [AI绘图](#ai绘图)
+    - [文档解读](#文档解读)
+    - [图像解析](#图像解析)
+    - [ticket存活检测](#ticket存活检测)
+  - [注意事项](#注意事项)
+    - [Nginx反代优化](#nginx反代优化)
+    - [Token统计](#token统计)
+  - [Star History](#star-history)
   
 ## 免责声明
 
@@ -67,12 +79,6 @@ MiniMax（海螺AI）接口转API [hailuo-free-api](https://github.com/LLM-Red-T
 **仅限自用，禁止对外提供服务或商用，避免对官方造成服务压力，否则风险自担！**
 
 **仅限自用，禁止对外提供服务或商用，避免对官方造成服务压力，否则风险自担！**
-
-## 在线体验
-
-此链接仅临时测试功能，长期使用请自行部署。
-
-https://udify.app/chat/qOXzVl5kkvhQXM8r
 
 ## 效果示例
 
