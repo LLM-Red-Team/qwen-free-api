@@ -80,6 +80,7 @@ async function removeConversation(convId: string, ticket: string) {
 async function createCompletion(
   model = MODEL_NAME,
   messages: any[],
+  searchType: string = '',
   ticket: string,
   refConvId = '',
   retryCount = 0
@@ -129,7 +130,8 @@ async function createCompletion(
         sessionType: "text_chat",
         parentMsgId,
         params: {
-          "fileUploadBatchId": util.uuid()
+          "fileUploadBatchId": util.uuid(),
+          "searchType": searchType,
         },
         contents: messagesPrepare(messages, refs, !!refConvId),
       })
@@ -173,6 +175,7 @@ async function createCompletion(
 async function createCompletionStream(
   model = MODEL_NAME,
   messages: any[],
+  searchType: string = '',
   ticket: string,
   refConvId = '',
   retryCount = 0
@@ -220,7 +223,8 @@ async function createCompletionStream(
         sessionType: "text_chat",
         parentMsgId,
         params: {
-          "fileUploadBatchId": util.uuid()
+          "fileUploadBatchId": util.uuid(),
+          "searchType": searchType,
         },
         contents: messagesPrepare(messages, refs, !!refConvId),
       })
