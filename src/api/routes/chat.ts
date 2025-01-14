@@ -17,11 +17,12 @@ export default {
       const tokens = chat.tokenSplit(request.headers.authorization);
       // 随机挑选一个ticket
       const token = _.sample(tokens);
-      const { model, conversation_id: convId, messages, stream } = request.body;
+      const { model, conversation_id: convId, messages, search_type, stream } = request.body;
       if (stream) {
         const stream = await chat.createCompletionStream(
           model,
           messages,
+          search_type,
           token,
           convId
         );
@@ -32,6 +33,7 @@ export default {
         return await chat.createCompletion(
           model,
           messages,
+          search_type,
           token,
           convId
         );
