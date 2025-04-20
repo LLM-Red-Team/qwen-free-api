@@ -322,7 +322,7 @@ Authorization: Bearer [tongyi_sso_ticket/login_aliyunid_ticket]
 
 ### AI绘图
 
-对话补全接口，与openai的 [images-create-api](https://platform.openai.com/docs/api-reference/images/create) 兼容。
+AI绘图接口，与openai的 [images-create-api](https://platform.openai.com/docs/api-reference/images/create) 兼容。
 
 **POST /v1/images/generations**
 
